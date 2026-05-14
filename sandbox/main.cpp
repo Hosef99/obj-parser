@@ -75,6 +75,7 @@ void display()
 
     for (auto mesh : model.meshes)
     {
+        glShadeModel(GL_SMOOTH);
         for (auto sub_mesh : mesh.sub_meshes)
         {
             apply_material(*sub_mesh.material);
