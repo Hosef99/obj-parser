@@ -7,7 +7,11 @@ file(GLOB_RECURSE SRC
     src/*.cpp
 )
 
-add_executable(obj-parser ${SRC})
+add_library(obj-parser STATIC)
+
+target_sources(obj-parser PRIVATE
+    ${SRC}
+)
 
 target_include_directories(obj-parser PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
