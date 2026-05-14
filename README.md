@@ -30,6 +30,9 @@ TODO: draw a diagram to illustrate the relationships of the structure.
 
 The `OP::parse` function receives a string path to the `.obj` file and returns a `Model` (Note that the `.mtl` file should be in the same parent directory as the `.obj` file). This `Model` will contain most data that the user needs. Please do look into the `sandbox/main.cpp` file as it provides a nice example that shows how to use this library to draw shapes in `/assets` using OpenGL 1.1 and GLUT.
 
+> [!IMPORTANT]
+> When exporting models from Blender or any other modelling software, it is **REQUIRED** to check the triangulated mesh option. As of now, `obj-parser` does not support any other types of mesh other than triangles.
+
 ## Bugs
 If there are any bugs found when using this library, submit an issue and I'll get to workin as soon as possible!
 
