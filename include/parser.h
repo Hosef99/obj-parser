@@ -37,6 +37,18 @@ namespace OP
         }
     };
 
+    struct Material
+    {
+        Vec3<float> ambient;
+        Vec3<float> diffuse;
+        Vec3<float> spectular;
+        Vec3<float> emission;
+        float       optical;    // Optical density
+        float       exponent;   // Specular exponent
+        float       dissolve;
+        int         model;      // Illumination model
+    };
+
     struct Vertex
     {
         Vec3<float> position;
@@ -44,7 +56,24 @@ namespace OP
         Vec3<float> normal;
     };
 
-    std::vector<Vertex> parse(std::string path);
+    struct SubMesh
+    {
+        std::vector<Vertex> vertices;
+        Material* material = nullptr;
+    };
+
+    struct Mesh
+    {
+        std::vector<SubMesh> sub_meshes;
+        bool smooth;
+    };
+
+    struct Model
+    {
+        std::vector<Mesh> meshes;
+    };
+
+    Model parse(std::string path);
 }
 
 #endif
