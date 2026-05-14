@@ -25,7 +25,10 @@ If you are using CMake, simply do `add_subdirectory([path-to-obj-parser])`, and 
 On Code::Blocks, the easiest way to link the library is to add the `.cpp` files in `obj-parser/src` into your project's `src` folder, and add all the `.h` files in `obj-parser/include` into your project's `include` folder. This would recompile the library every time, thus compile time will be slightly slower. It is still recommended to learn and use CMake.
 
 It is also recommended to read `include/parser.h` to get a feel how the structures are like.
+
 TODO: draw a diagram to illustrate the relationships of the structure.
+
+The `sandbox/main.cpp` file shows a small example on how to use this library to draw shapes in `/assets` using OpenGL 1.1 and GLUT.
 
 ## Bugs
 If there are any bugs found when using this library, submit an issue and I'll get to workin as soon as possible!
