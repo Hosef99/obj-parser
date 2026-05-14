@@ -28,7 +28,7 @@ It is also recommended to read `include/parser.h` to get a feel how the structur
 
 TODO: draw a diagram to illustrate the relationships of the structure.
 
-The `sandbox/main.cpp` file shows a small example on how to use this library to draw shapes in `/assets` using OpenGL 1.1 and GLUT.
+The `OP::parse` function receives a string path to the `.obj` file and returns a `Model` (Note that the `.mtl` file should be in the same parent directory as the `.obj` file). This `Model` will contain most data that the user needs. Please do look into the `sandbox/main.cpp` file as it provides a nice example that shows how to use this library to draw shapes in `/assets` using OpenGL 1.1 and GLUT.
 
 ## Bugs
 If there are any bugs found when using this library, submit an issue and I'll get to workin as soon as possible!
