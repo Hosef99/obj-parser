@@ -84,6 +84,12 @@ namespace OP
 
         int count;
 
+        if (!curr_sub_mesh)
+        {
+            curr_mesh.sub_meshes.push_back(SubMesh());
+            curr_sub_mesh = &mesh.sub_meshes.back();
+        }
+
         count = 0;
         s_face = get_word_until(line, pos, ' ');
         vertex.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
