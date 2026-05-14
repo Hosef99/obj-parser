@@ -21,7 +21,7 @@ void init()
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-    model = OP::parse("assets/materials_test.obj");
+    model = OP::parse("assets/water_bottle.obj");
 }
 
 void apply_material(const OP::Material& mat)
