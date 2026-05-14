@@ -3,4 +3,13 @@ project(ObjParser)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(obj-parser main.cpp parser.cpp)
+file(GLOB_RECURSE SRC
+    src/*.cpp
+)
+
+add_executable(obj-parser ${SRC})
+
+target_include_directories(obj-parser PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/external
+)

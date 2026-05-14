@@ -146,6 +146,10 @@ namespace OP
 
         obj_file.close();
 
+        std::cout << "Size of vertices: " << vertices.size() << std::endl;
+        for (int i = 0; i < vertices.size(); i++)
+            std::cout << vertices[i].position << " " << vertices[i].uv << " " << vertices[i].normal << std::endl;
+
         return vertices;
     }
 }
