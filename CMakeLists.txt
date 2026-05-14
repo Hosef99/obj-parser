@@ -15,5 +15,4 @@ target_sources(obj-parser PRIVATE
 
 target_include_directories(obj-parser PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
