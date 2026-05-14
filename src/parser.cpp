@@ -86,8 +86,8 @@ namespace OP
 
         if (!curr_sub_mesh)
         {
-            curr_mesh.sub_meshes.push_back(SubMesh());
-            curr_sub_mesh = &mesh.sub_meshes.back();
+            curr_mesh->sub_meshes.push_back(SubMesh());
+            curr_sub_mesh = &curr_mesh->sub_meshes.back();
         }
 
         count = 0;
