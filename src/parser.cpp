@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <unordered_map>
 
 #include "parser.h"
@@ -29,8 +30,9 @@ namespace OP
     static std::vector<Vec2<float>> v_uv;
     static std::vector<Vec3<float>> v_normal;
 
-    static SubMesh* curr_sub_mesh = nullptr;
-    static Mesh*    curr_mesh = nullptr;
+    static SubMesh*  curr_sub_mesh = nullptr;
+    static Mesh*     curr_mesh = nullptr;
+    static Material* curr_mat = nullptr;
 
     static std::unordered_map<std::string, Material> materials;
 
@@ -115,18 +117,86 @@ namespace OP
         curr_sub_mesh->vertices.push_back(vertex);
     }
 
+    void parse_mtl(std::string mtl_path)
+    {
+        std::ifstream mtl_file(mtl_path);
+
+        if (!mtl_file.is_open())
+        {
+            printf("Unable to open file %s\n", mtl_path.c_str());
+            exit(1);
+        }
+
+        std::string line;
+
+        while (getline(mtl_file, line))
+        {
+            if (line[0] == '#') continue; // comment, skip
+
+            int pos = 0;
+            int line_len = line.length();
+
+            std::string elem = get_word_until(line, pos, ' ');
+
+            if (elem == "newmtl")
+            {
+                std::string mat_name = get_word(line, pos);
+                materials[mat_name] = Material();
+                curr_mat = &materials[mat_name];
+            }
+            else if (elem == "Ns")
+                curr_mat->shininess = std::stof(get_word(line, pos));
+            else if (elem == "Ka")
+            {
+                curr_mat->ambient.x = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->ambient.y = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->ambient.z = std::stof(get_word_until(line, pos, ' '));
+            }
+            else if (elem == "Kd")
+            {
+                curr_mat->diffuse.x = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->diffuse.y = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->diffuse.z = std::stof(get_word_until(line, pos, ' '));
+            }
+            else if (elem == "Ks")
+            {
+                curr_mat->specular.x = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->specular.y = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->specular.z = std::stof(get_word_until(line, pos, ' '));
+            }
+            else if (elem == "Ke")
+            {
+                curr_mat->emission.x = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->emission.y = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->emission.z = std::stof(get_word_until(line, pos, ' '));
+            }
+            else if (elem == "Ni")
+                curr_mat->optical_density = std::stof(get_word(line, pos));
+            else if (elem == "d")
+                curr_mat->dissolve = std::stof(get_word(line, pos));
+            else if (elem == "Tr")
+                curr_mat->dissolve = 1 - std::stof(get_word(line, pos)); // Tr is inversed
+            else if (elem == "illum")
+                curr_mat->model = std::stoi(get_word(line, pos));
+            else if (elem == " " || elem == "\0")
+                ;
+            else
+            {
+                printf("Element '%s' not implemented yet.\n", elem.c_str());
+            }
+        }
+    }
+
     Model parse(std::string path)
     {
-        std::string obj_path = path + ".obj";
-        std::string mtl_path = path + ".mtl";
-
-        // TODO: parse mtl file before obj file
+        std::filesystem::path obj_path = path;
+        std::filesystem::path dir = obj_path.parent_path();
 
         std::ifstream obj_file(obj_path);
 
         if (!obj_file.is_open())
         {
-            printf("Unable to open file %s\n", obj_path);
+            printf("Unable to open file %s\n", obj_path.string().c_str());
             exit(1);
         }
 
@@ -169,10 +239,14 @@ namespace OP
                 std::string material_name = get_word(line, pos);
                 curr_mesh->sub_meshes.push_back(SubMesh());
                 curr_sub_mesh = &curr_mesh->sub_meshes.back();
-                // curr_sub_mesh->material = &materials[material_name];
+                curr_sub_mesh->material = &materials[material_name];
             }
             else if (elem == "mtllib")  // TODO: load material library
-                ;
+            {
+                std::string mtl_name = get_word(line, pos);
+                std::filesystem::path mtl_path = dir / mtl_name;
+                parse_mtl(mtl_path.string());
+            }
             else if (elem == "g")       // TODO: grouping
                 ;
             else

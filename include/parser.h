@@ -41,10 +41,10 @@ namespace OP
     {
         Vec3<float> ambient;
         Vec3<float> diffuse;
-        Vec3<float> spectular;
+        Vec3<float> specular;
         Vec3<float> emission;
-        float       optical;    // Optical density
-        float       exponent;   // Specular exponent
+        float       optical_density;    // Optical density
+        float       shininess;  // Specular exponent
         float       dissolve;
         int         model;      // Illumination model
     };

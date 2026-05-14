@@ -16,3 +16,22 @@ target_sources(obj-parser PRIVATE
 target_include_directories(obj-parser PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+option(SANDBOX "Build Sandbox" OFF)
+
+if(SANDBOX)
+    file(GLOB_RECURSE SANDBOX_SRC
+        sandbox/*.cpp
+    )
+
+    find_package(OpenGL REQUIRED)
+    find_package(GLUT REQUIRED)
+
+    add_executable(test ${SANDBOX_SRC})
+    target_link_libraries(test PUBLIC
+        obj-parser
+        OpenGL::GL
+        OpenGL::GLU
+        GLUT::GLUT
+    )
+endif()
