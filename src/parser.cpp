@@ -10,7 +10,7 @@ static std::string get_word(std::string line, int& pos)
     int length = line.size();
     int count = 0;
     int start_pos = pos;
-    while (pos < length) count++;
+    while (pos < length && line[pos++] != '\0') count++;
     return line.substr(start_pos, count);
 }
 
