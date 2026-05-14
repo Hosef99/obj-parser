@@ -1,2 +1,2 @@
 #!/bin/bash
-cmake -S . -B build && cmake --build build && build/obj-parser assets/mirrorcube.obj test
+cmake -S . -B build && cmake --build build && build/obj-parser assets/mirrorcube test
