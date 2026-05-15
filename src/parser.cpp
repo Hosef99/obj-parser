@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 #include <unordered_map>
+#include <algorithm>
 
 #include "parser.h"
 
@@ -21,6 +22,17 @@ static std::string get_word_until(std::string line, int& pos, char separator)
     int count = 0;
     int start_pos = pos;
     while (pos < length && line[pos++] != separator) count++;
+    return line.substr(start_pos, count);
+}
+
+static std::string get_word_until_space(std::string line, int& pos)
+{
+    int length = line.size();
+    int count = 0;
+    int start_pos = pos;
+    while (pos < length && line[pos++] != ' ') count++;
+    while (pos < length && line[pos] == ' ')
+        pos++;
     return line.substr(start_pos, count);
 }
 
@@ -78,43 +90,56 @@ namespace OP
         v_normal.push_back(Vec3<float>(x, y, z));
     }
 
+    static void parse_vertex(std::string line, int& pos)
+    {
+        Vertex v;
+        int count = 0;
+        std::string s_face = get_word_until_space(line, pos);
+
+        int slash_count = std::count(s_face.begin(), s_face.end(), '/');
+        if (slash_count == 0) // position
+        {
+            v.position = v_position[std::stoi(s_face) - 1];
+            v.uv = Vec2<float>();
+            v.normal = Vec3<float>();
+        }
+        else if (slash_count == 1) // position + uv
+        {
+            v.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
+            v.uv = v_uv[std::stoi(get_word(s_face, count)) - 1];
+            v.normal = Vec3<float>();
+        }
+        else if (slash_count == 2) // position + uv + normal OR position + normal
+        {
+            v.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
+            std::string s_uv = get_word_until(s_face, count, '/');
+            if (s_uv == "") 
+                v.uv = Vec2<float>();
+            else 
+                v.uv = v_uv[std::stoi(s_uv) - 1];
+            v.normal = v_normal[std::stoi(get_word(s_face, count)) - 1];
+        }
+        else
+        {
+            std::cout << "Slashes more than 2 is not supported\n";
+            exit(1);
+        }
+
+        curr_sub_mesh->vertices.push_back(v);
+    }
+
     static void parse_face(std::string line, int pos)
     {
         // ONLY SUPPORT TRIANGULATED MESHES, IF IT ISN'T, IT WILL ---DEFINITELY--- BREAK
-        std::string s_face;
-        Vertex vertex;
-
-        int count;
-
         if (!curr_sub_mesh)
         {
             curr_mesh->sub_meshes.push_back(SubMesh());
             curr_sub_mesh = &curr_mesh->sub_meshes.back();
         }
 
-        count = 0;
-        s_face = get_word_until(line, pos, ' ');
-        vertex.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.uv = v_uv[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.normal = v_normal[std::stoi(get_word_until(s_face, count, '/')) - 1];
-
-        curr_sub_mesh->vertices.push_back(vertex);
-
-        count = 0;
-        s_face = get_word_until(line, pos, ' ');
-        vertex.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.uv = v_uv[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.normal = v_normal[std::stoi(get_word_until(s_face, count, '/')) - 1];
-
-        curr_sub_mesh->vertices.push_back(vertex);
-
-        count = 0;
-        s_face = get_word_until(line, pos, ' ');
-        vertex.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.uv = v_uv[std::stoi(get_word_until(s_face, count, '/')) - 1];
-        vertex.normal = v_normal[std::stoi(get_word_until(s_face, count, '/')) - 1];
-
-        curr_sub_mesh->vertices.push_back(vertex);
+        parse_vertex(line, pos);
+        parse_vertex(line, pos);
+        parse_vertex(line, pos);
     }
 
     void parse_mtl(std::string mtl_path)

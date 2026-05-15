@@ -12,7 +12,7 @@ A lightweight, simple `.obj` file parser.
 
 ### Why should you NOT use this?
 - does not support any type of faces other than triangular faces
-- currently only supports face formats of `v/vt/vn`
+- ~~currently only supports face formats of `v/vt/vn`~~
 - not efficient
 - no texture maps
 - small bugs here and there
