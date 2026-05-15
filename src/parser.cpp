@@ -53,13 +53,13 @@ namespace OP
     static void parse_position(std::string line, int pos)
     {
         float x, y, z;
-        std::string s_vertex;
-        s_vertex = get_word_until(line, pos, ' ');
-        x = std::stof(s_vertex);
-        s_vertex = get_word_until(line, pos, ' ');
-        y = std::stof(s_vertex);
-        s_vertex = get_word_until(line, pos, ' ');
-        z = std::stof(s_vertex);
+        std::string s_position;
+        s_position = get_word_until_space(line, pos);
+        x = std::stof(s_position);
+        s_position = get_word_until_space(line, pos);
+        y = std::stof(s_position);
+        s_position = get_word_until_space(line, pos);
+        z = std::stof(s_position);
 
         v_position.push_back(Vec3<float>(x, y, z));
     }
@@ -68,9 +68,9 @@ namespace OP
     {
         float x, y;
         std::string s_uv;
-        s_uv = get_word_until(line, pos, ' ');
+        s_uv = get_word_until_space(line, pos);
         x = std::stof(s_uv);
-        s_uv = get_word_until(line, pos, ' ');
+        s_uv = get_word_until_space(line, pos);
         y = std::stof(s_uv);
 
         v_uv.push_back(Vec2<float>(x, y));
@@ -80,11 +80,11 @@ namespace OP
     {
         float x, y, z;
         std::string s_normal;
-        s_normal = get_word_until(line, pos, ' ');
+        s_normal = get_word_until_space(line, pos);
         x = std::stof(s_normal);
-        s_normal = get_word_until(line, pos, ' ');
+        s_normal = get_word_until_space(line, pos);
         y = std::stof(s_normal);
-        s_normal = get_word_until(line, pos, ' ');
+        s_normal = get_word_until_space(line, pos);
         z = std::stof(s_normal);
 
         v_normal.push_back(Vec3<float>(x, y, z));
@@ -161,7 +161,7 @@ namespace OP
             int pos = 0;
             int line_len = line.length();
 
-            std::string elem = get_word_until(line, pos, ' ');
+            std::string elem = get_word_until_space(line, pos);
 
             if (elem == "newmtl")
             {
@@ -173,27 +173,27 @@ namespace OP
                 curr_mat->shininess = std::stof(get_word(line, pos));
             else if (elem == "Ka")
             {
-                curr_mat->ambient.x = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->ambient.y = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->ambient.z = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->ambient.x = std::stof(get_word_until_space(line, pos));
+                curr_mat->ambient.y = std::stof(get_word_until_space(line, pos));
+                curr_mat->ambient.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Kd")
             {
-                curr_mat->diffuse.x = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->diffuse.y = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->diffuse.z = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->diffuse.x = std::stof(get_word_until_space(line, pos));
+                curr_mat->diffuse.y = std::stof(get_word_until_space(line, pos));
+                curr_mat->diffuse.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ks")
             {
-                curr_mat->specular.x = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->specular.y = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->specular.z = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->specular.x = std::stof(get_word_until_space(line, pos));
+                curr_mat->specular.y = std::stof(get_word_until_space(line, pos));
+                curr_mat->specular.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ke")
             {
-                curr_mat->emission.x = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->emission.y = std::stof(get_word_until(line, pos, ' '));
-                curr_mat->emission.z = std::stof(get_word_until(line, pos, ' '));
+                curr_mat->emission.x = std::stof(get_word_until_space(line, pos));
+                curr_mat->emission.y = std::stof(get_word_until_space(line, pos));
+                curr_mat->emission.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ni")
                 curr_mat->optical_density = std::stof(get_word(line, pos));
@@ -203,7 +203,7 @@ namespace OP
                 curr_mat->dissolve = 1 - std::stof(get_word(line, pos)); // Tr is inversed
             else if (elem == "illum")
                 curr_mat->model = std::stoi(get_word(line, pos));
-            else if (elem == " " || elem == "\0")
+            else if (elem == " " || elem == "\0" || elem == "")
                 ;
             else
             {
@@ -234,7 +234,7 @@ namespace OP
             int pos = 0;
             int line_len = line.length();
 
-            std::string elem = get_word_until(line, pos, ' ');
+            std::string elem = get_word_until_space(line, pos);
 
             if (elem == "v")
                 parse_position(line, pos);
