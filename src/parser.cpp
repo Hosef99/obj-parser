@@ -2,7 +2,6 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
-#include <unordered_map>
 #include <algorithm>
 
 #include "parser.h"
@@ -38,19 +37,7 @@ static std::string get_word_until_space(std::string line, int& pos)
 
 namespace OP
 {
-    static std::vector<Vec3<float>> v_position;
-    static std::vector<Vec2<float>> v_uv;
-    static std::vector<Vec3<float>> v_normal;
-
-    static SubMesh*  curr_sub_mesh = nullptr;
-    static Mesh*     curr_mesh = nullptr;
-    static Material* curr_mat = nullptr;
-
-    static std::unordered_map<std::string, Material> materials;
-
-    static Model model;
-
-    static void parse_position(std::string line, int pos)
+    static void parse_position(ObjEnv& env, std::string line, int pos)
     {
         float x, y, z;
         std::string s_position;
@@ -61,10 +48,10 @@ namespace OP
         s_position = get_word_until_space(line, pos);
         z = std::stof(s_position);
 
-        v_position.push_back(Vec3<float>(x, y, z));
+        env.v_position.push_back(Vec3<float>(x, y, z));
     }
 
-    static void parse_uv(std::string line, int pos)
+    static void parse_uv(ObjEnv& env, std::string line, int pos)
     {
         float x, y;
         std::string s_uv;
@@ -73,10 +60,10 @@ namespace OP
         s_uv = get_word_until_space(line, pos);
         y = std::stof(s_uv);
 
-        v_uv.push_back(Vec2<float>(x, y));
+        env.v_uv.push_back(Vec2<float>(x, y));
     }
 
-    static void parse_normal(std::string line, int pos)
+    static void parse_normal(ObjEnv& env, std::string line, int pos)
     {
         float x, y, z;
         std::string s_normal;
@@ -87,10 +74,10 @@ namespace OP
         s_normal = get_word_until_space(line, pos);
         z = std::stof(s_normal);
 
-        v_normal.push_back(Vec3<float>(x, y, z));
+        env.v_normal.push_back(Vec3<float>(x, y, z));
     }
 
-    static void parse_vertex(std::string line, int& pos)
+    static void parse_vertex(ObjEnv& env, std::string line, int& pos)
     {
         Vertex v;
         int count = 0;
@@ -99,25 +86,25 @@ namespace OP
         int slash_count = std::count(s_face.begin(), s_face.end(), '/');
         if (slash_count == 0) // position
         {
-            v.position = v_position[std::stoi(s_face) - 1];
+            v.position = env.v_position[std::stoi(s_face) - 1];
             v.uv = Vec2<float>();
             v.normal = Vec3<float>();
         }
         else if (slash_count == 1) // position + uv
         {
-            v.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
-            v.uv = v_uv[std::stoi(get_word(s_face, count)) - 1];
+            v.position = env.v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
+            v.uv = env.v_uv[std::stoi(get_word(s_face, count)) - 1];
             v.normal = Vec3<float>();
         }
         else if (slash_count == 2) // position + uv + normal OR position + normal
         {
-            v.position = v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
+            v.position = env.v_position[std::stoi(get_word_until(s_face, count, '/')) - 1];
             std::string s_uv = get_word_until(s_face, count, '/');
             if (s_uv == "") 
                 v.uv = Vec2<float>();
             else 
-                v.uv = v_uv[std::stoi(s_uv) - 1];
-            v.normal = v_normal[std::stoi(get_word(s_face, count)) - 1];
+                v.uv = env.v_uv[std::stoi(s_uv) - 1];
+            v.normal = env.v_normal[std::stoi(get_word(s_face, count)) - 1];
         }
         else
         {
@@ -125,24 +112,24 @@ namespace OP
             exit(1);
         }
 
-        curr_sub_mesh->vertices.push_back(v);
+        env.curr_sub_mesh->vertices.push_back(v);
     }
 
-    static void parse_face(std::string line, int pos)
+    static void parse_face(ObjEnv& env, std::string line, int pos)
     {
         // ONLY SUPPORT TRIANGULATED MESHES, IF IT ISN'T, IT WILL ---DEFINITELY--- BREAK
-        if (!curr_sub_mesh)
+        if (!env.curr_sub_mesh)
         {
-            curr_mesh->sub_meshes.push_back(SubMesh());
-            curr_sub_mesh = &curr_mesh->sub_meshes.back();
+            env.curr_mesh->sub_meshes.push_back(SubMesh());
+            env.curr_sub_mesh = &env.curr_mesh->sub_meshes.back();
         }
 
-        parse_vertex(line, pos);
-        parse_vertex(line, pos);
-        parse_vertex(line, pos);
+        parse_vertex(env, line, pos);
+        parse_vertex(env, line, pos);
+        parse_vertex(env, line, pos);
     }
 
-    void parse_mtl(std::string mtl_path)
+    void parse_mtl(ObjEnv& env, std::string mtl_path)
     {
         std::ifstream mtl_file(mtl_path);
 
@@ -166,43 +153,43 @@ namespace OP
             if (elem == "newmtl")
             {
                 std::string mat_name = get_word(line, pos);
-                materials[mat_name] = Material();
-                curr_mat = &materials[mat_name];
+                env.materials[mat_name] = Material();
+                env.curr_mat = &env.materials[mat_name];
             }
             else if (elem == "Ns")
-                curr_mat->shininess = std::stof(get_word(line, pos));
+                env.curr_mat->shininess = std::stof(get_word(line, pos));
             else if (elem == "Ka")
             {
-                curr_mat->ambient.x = std::stof(get_word_until_space(line, pos));
-                curr_mat->ambient.y = std::stof(get_word_until_space(line, pos));
-                curr_mat->ambient.z = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->ambient.x = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->ambient.y = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->ambient.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Kd")
             {
-                curr_mat->diffuse.x = std::stof(get_word_until_space(line, pos));
-                curr_mat->diffuse.y = std::stof(get_word_until_space(line, pos));
-                curr_mat->diffuse.z = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->diffuse.x = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->diffuse.y = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->diffuse.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ks")
             {
-                curr_mat->specular.x = std::stof(get_word_until_space(line, pos));
-                curr_mat->specular.y = std::stof(get_word_until_space(line, pos));
-                curr_mat->specular.z = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->specular.x = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->specular.y = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->specular.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ke")
             {
-                curr_mat->emission.x = std::stof(get_word_until_space(line, pos));
-                curr_mat->emission.y = std::stof(get_word_until_space(line, pos));
-                curr_mat->emission.z = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->emission.x = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->emission.y = std::stof(get_word_until_space(line, pos));
+                env.curr_mat->emission.z = std::stof(get_word_until_space(line, pos));
             }
             else if (elem == "Ni")
-                curr_mat->optical_density = std::stof(get_word(line, pos));
+                env.curr_mat->optical_density = std::stof(get_word(line, pos));
             else if (elem == "d")
-                curr_mat->dissolve = std::stof(get_word(line, pos));
+                env.curr_mat->dissolve = std::stof(get_word(line, pos));
             else if (elem == "Tr")
-                curr_mat->dissolve = 1 - std::stof(get_word(line, pos)); // Tr is inversed
+                env.curr_mat->dissolve = 1 - std::stof(get_word(line, pos)); // Tr is inversed
             else if (elem == "illum")
-                curr_mat->model = std::stoi(get_word(line, pos));
+                env.curr_mat->model = std::stoi(get_word(line, pos));
             else if (elem == " " || elem == "\0" || elem == "")
                 ;
             else
@@ -214,6 +201,8 @@ namespace OP
 
     Model parse(std::string path)
     {
+        ObjEnv env;
+
         std::filesystem::path obj_path = path;
         std::filesystem::path dir = obj_path.parent_path();
 
@@ -237,40 +226,40 @@ namespace OP
             std::string elem = get_word_until_space(line, pos);
 
             if (elem == "v")
-                parse_position(line, pos);
+                parse_position(env, line, pos);
             else if (elem == "vt")
-                parse_uv(line, pos);
+                parse_uv(env, line, pos);
             else if (elem == "vn")
-                parse_normal(line, pos);
+                parse_normal(env, line, pos);
             else if (elem == "s")
             {
                 std::string smooth = get_word(line, pos);
                 
                 if (smooth == "0" || smooth == "off")
-                    curr_mesh->smooth = false;
+                    env.curr_mesh->smooth = false;
                 else
-                    curr_mesh->smooth = true;
+                    env.curr_mesh->smooth = true;
             }
             else if (elem == "f")
-                parse_face(line, pos);
+                parse_face(env, line, pos);
             else if (elem == "o")       // TODO: store mesh name
             {
-                model.meshes.push_back(Mesh());
-                curr_mesh = &model.meshes.back();
+                env.model.meshes.push_back(Mesh());
+                env.curr_mesh = &env.model.meshes.back();
             }
             else if (elem == "usemtl")  // TODO: use specific material for mesh
             {
                 // when i see usemtl, go to the next mesh and set material
                 std::string material_name = get_word(line, pos);
-                curr_mesh->sub_meshes.push_back(SubMesh());
-                curr_sub_mesh = &curr_mesh->sub_meshes.back();
-                curr_sub_mesh->material = &materials[material_name];
+                env.curr_mesh->sub_meshes.push_back(SubMesh());
+                env.curr_sub_mesh = &env.curr_mesh->sub_meshes.back();
+                env.curr_sub_mesh->material = &env.materials[material_name];
             }
             else if (elem == "mtllib")  // TODO: load material library
             {
                 std::string mtl_name = get_word(line, pos);
                 std::filesystem::path mtl_path = dir / mtl_name;
-                parse_mtl(mtl_path.string());
+                parse_mtl(env, mtl_path.string());
             }
             else if (elem == "g")       // TODO: grouping
                 ;
@@ -282,10 +271,6 @@ namespace OP
 
         obj_file.close();
 
-        v_position.clear();
-        v_uv.clear();
-        v_normal.clear();
-
-        return model;
+        return env.model;
     }
 }

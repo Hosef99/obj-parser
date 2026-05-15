@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iomanip>
+#include <unordered_map>
 
 namespace OP
 {
@@ -71,6 +72,21 @@ namespace OP
     struct Model
     {
         std::vector<Mesh> meshes;
+    };
+
+    struct ObjEnv
+    {
+        std::vector<Vec3<float>> v_position;
+        std::vector<Vec2<float>> v_uv;
+        std::vector<Vec3<float>> v_normal;
+
+        SubMesh*  curr_sub_mesh = nullptr;
+        Mesh*     curr_mesh     = nullptr;
+        Material* curr_mat      = nullptr;
+
+        std::unordered_map<std::string, Material> materials;
+
+        Model model;
     };
 
     Model parse(std::string path);
