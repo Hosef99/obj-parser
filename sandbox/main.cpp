@@ -78,7 +78,7 @@ void display()
         glShadeModel(GL_SMOOTH);
         for (auto sub_mesh : mesh.sub_meshes)
         {
-            apply_material(*sub_mesh.material);
+            apply_material(sub_mesh.material);
 
             glBegin(GL_TRIANGLES);
 

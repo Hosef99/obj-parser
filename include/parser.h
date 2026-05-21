@@ -60,7 +60,7 @@ namespace OP
     struct SubMesh
     {
         std::vector<Vertex> vertices;
-        Material* material = nullptr;
+        Material material;
     };
 
     struct Mesh

@@ -253,7 +253,7 @@ namespace OP
                 std::string material_name = get_word(line, pos);
                 env.curr_mesh->sub_meshes.push_back(SubMesh());
                 env.curr_sub_mesh = &env.curr_mesh->sub_meshes.back();
-                env.curr_sub_mesh->material = &env.materials[material_name];
+                env.curr_sub_mesh->material = env.materials[material_name];
             }
             else if (elem == "mtllib")  // TODO: load material library
             {
