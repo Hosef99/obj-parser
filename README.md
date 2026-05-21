@@ -26,6 +26,23 @@ Use the compile command `g++ sandbox/c_output.cpp src/parser.cpp -o obj-parser -
 
 The usage of `obj-parser` is as simple as you breath, just do `obj-parser [obj file] [output file (optional)]`. If no output file is provided, the program will put the output in a `output/out.c` file.
 
+The arrays that are outputted are currently in the form of:
+```c
+const float modelmaterial1[] = {
+    x, y, z, u, v, nx, ny, nz,
+    ...
+};
+
+const float modelmaterial2[] = {
+    x, y, z, u, v, nx, ny, nz,
+    ...
+};
+
+...
+```
+where `x`, `y`, and `z` are the positions of the vertex, `u` and `v` are the texture coordinates of the vertex, and `nx`, `ny`, `nz` are the normals of the vertex.
+
+
 ### To use the models directly in your project
 
 If you are using CMake, add `add_subdirectory([path-to-obj-parser])`, and link the library by adding the line `target_link_libraries([your project] obj-parser)` in your `CMakeLists.txt` file.
