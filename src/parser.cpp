@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 #include <algorithm>
+#include <ctype.h>
 
 #include "parser.h"
 
@@ -246,6 +247,7 @@ namespace OP
             {
                 env.model.meshes.push_back(Mesh());
                 env.curr_mesh = &env.model.meshes.back();
+                env.curr_mesh->name = get_word(line, pos);
             }
             else if (elem == "usemtl")  // TODO: use specific material for mesh
             {
@@ -254,6 +256,7 @@ namespace OP
                 env.curr_mesh->sub_meshes.push_back(SubMesh());
                 env.curr_sub_mesh = &env.curr_mesh->sub_meshes.back();
                 env.curr_sub_mesh->material = env.materials[material_name];
+                env.curr_sub_mesh->material_name = material_name;
             }
             else if (elem == "mtllib")  // TODO: load material library
             {
@@ -272,5 +275,57 @@ namespace OP
         obj_file.close();
 
         return env.model;
+    }
+
+    static std::string sanitize_str(std::string str)
+    {
+        std::string res = "";
+        if (isdigit(str[0]))
+        {
+            res += "n";
+        }
+
+        for (char c : str)
+        {
+            if (c != '_' && !isalnum(c))
+                res += '_';
+            else
+                res += c;
+        }
+        return res;
+    }
+
+    void obj_codegen(std::string obj_path, std::string output_path)
+    {
+        Model model = parse(obj_path);
+
+        std::ofstream out(output_path);
+
+        if (!out.is_open())
+        {
+            std::cerr << "Unable to open file." << std::endl;
+            return;
+        }
+
+        for (auto mesh : model.meshes)
+        {
+            for (auto sub_mesh : mesh.sub_meshes)
+            {
+                out << "const float " << sanitize_str(mesh.name) + sanitize_str(sub_mesh.material_name) << "[] = {\n";
+                for (int i = 0; i < sub_mesh.vertices.size(); i++)
+                {
+                    Vertex v = sub_mesh.vertices[i];
+                    out << "    ";
+                    out << std::fixed << std::setprecision(4) << std::setw(7) << v.position.x << "f, " << std::setw(7) << v.position.y << "f, " << std::setw(7) << v.normal.z << "f, ";
+                    out << std::fixed << std::setprecision(4) << std::setw(7) << v.uv.x << "f, " << std::setw(7) << v.uv.y << "f, ";
+                    out << std::fixed << std::setprecision(4) << std::setw(7) << v.normal.x << "f, " << std::setw(7) << v.normal.y << "f, " << std::setw(7) << v.normal.z << "f";
+                    if (i < sub_mesh.vertices.size() - 1)
+                        out << ", \n";
+                    else
+                        out << "\n";
+                }
+                out << "};\n\n";
+            }
+        }
     }
 }

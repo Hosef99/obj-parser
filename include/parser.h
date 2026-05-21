@@ -61,12 +61,14 @@ namespace OP
     {
         std::vector<Vertex> vertices;
         Material material;
+        std::string material_name;
     };
 
     struct Mesh
     {
         std::vector<SubMesh> sub_meshes;
         bool smooth;
+        std::string name;
     };
 
     struct Model
@@ -90,6 +92,8 @@ namespace OP
     };
 
     Model parse(std::string path);
+
+    void obj_codegen(std::string obj_path, std::string output_path);
 }
 
 #endif

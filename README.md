@@ -20,7 +20,15 @@ A lightweight, simple `.obj` file parser.
 ## Usage
 Clone this repository into your project by running `git clone https://github.com/Hosef99/obj-parser.git`.
 
-If you are using CMake, simply do `add_subdirectory([path-to-obj-parser])`, and link the library by adding the line `target_link_libraries([your project] obj-parser)` in your `CMakeLists.txt` file.
+### To output C equivalent vertices in an array of floats
+
+Use the compile command `g++ sandbox/c_output.cpp src/parser.cpp -o obj-parser -Iinclude` to compile the command, this will create an executable at your directory called `obj-parser`.
+
+The usage of `obj-parser` is as simple as you breath, just do `obj-parser [obj file] [output file (optional)]`. If no output file is provided, the program will put the output in a `output/out.c` file.
+
+### To use the models directly in your project
+
+If you are using CMake, add `add_subdirectory([path-to-obj-parser])`, and link the library by adding the line `target_link_libraries([your project] obj-parser)` in your `CMakeLists.txt` file.
 
 On Code::Blocks, the easiest way to link the library is to add the `.cpp` files in `obj-parser/src` into your project's `src` folder, and add all the `.h` files in `obj-parser/include` into your project's `include` folder. This would recompile the library every time, thus compile time will be slightly slower. It is still recommended to learn and use CMake.
 

@@ -122,7 +122,7 @@ void reshape(int w, int h)
     gluPerspective(45.0, aspect, 0.1, 100.0);
 }
 
-int main(int argc, char** argv)
+int my_main(int argc, char** argv)
 {
     glutInit(&argc, argv);
 
