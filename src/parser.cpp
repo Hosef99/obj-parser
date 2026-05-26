@@ -316,7 +316,7 @@ namespace OP
                 {
                     Vertex v = sub_mesh.vertices[i];
                     out << "    ";
-                    out << std::fixed << std::setprecision(4) << std::setw(7) << v.position.x << "f, " << std::setw(7) << v.position.y << "f, " << std::setw(7) << v.normal.z << "f, ";
+                    out << std::fixed << std::setprecision(4) << std::setw(7) << v.position.x << "f, " << std::setw(7) << v.position.y << "f, " << std::setw(7) << v.position.z << "f, ";
                     out << std::fixed << std::setprecision(4) << std::setw(7) << v.uv.x << "f, " << std::setw(7) << v.uv.y << "f, ";
                     out << std::fixed << std::setprecision(4) << std::setw(7) << v.normal.x << "f, " << std::setw(7) << v.normal.y << "f, " << std::setw(7) << v.normal.z << "f";
                     if (i < sub_mesh.vertices.size() - 1)
